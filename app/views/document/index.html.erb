@@ -29,7 +29,7 @@
             <td><%= document.user_document.created_at.strftime("%-d %b %Y %H:%M") %></td>
             <td><%= human_readable_size(document.user_document.byte_size) %></td>
             <td class="d-flex align-items-top">
-              <%= link_to 'Download', document.user_document, download: '', class: "btn btn-outline-none pt-0" %> |&nbsp;
+              <%= link_to 'Download', "/document/download/#{document.id}/#{document.key}", class: "btn btn-outline-none pt-0" %> |&nbsp;
               <%= button_to 'Delete', document_path(document.id),  method: :delete, data: {confirm: 'Are you sure?'}, class: "btn btn-outline-none pt-0" %>
             </td>
             <td>

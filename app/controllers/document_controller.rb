@@ -1,6 +1,6 @@
 class DocumentController < ApplicationController
-  before_action :authenticate_user!, except: [:show]
-  before_action :correct_user, only: [:edit, :update, :destroy]
+  before_action :authenticate_user!, except: [:show, :sharedDownload]
+  before_action :correct_user, only: [:edit, :update, :destroy, :download]
   helper_method :human_readable_size
 
   def index
@@ -29,6 +29,22 @@ class DocumentController < ApplicationController
     flash[:notice] = "Status updated successfully!"
     redirect_to '/'
   end
+  
+  def download
+    @document = Document.find_by!(key: params[:key])
+    if @document
+       download_file(@document)
+    end
+  end
+
+  def sharedDownload
+    @document = Document.find_by!(key: params[:key])
+    if @document && @document.shared
+      download_file(@document)
+    else
+      redirect_to "/"
+    end
+  end
 
   def destroy
     @document = current_user.documents.find_by!(id: params[:id])
@@ -36,7 +52,6 @@ class DocumentController < ApplicationController
     @document && @document.destroy
     redirect_to '/'
   end
-
 
   private
 
@@ -47,6 +62,10 @@ class DocumentController < ApplicationController
   def correct_user
     @document = current_user.documents.find_by(id: params[:id])
     redirect_to "/", notice: "Not Authorized to perform this action" if @document.nil?
+  end
+
+  def download_file(document)
+    send_data document.user_document.download, filename: document.user_document.filename.to_s, content_type: document.user_document.content_type
   end
 
   def human_readable_size(size)
